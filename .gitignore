@@ -1,0 +1,24 @@
+# Python environments and caches
+venv/
+.venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+.mypy_cache/
+
+# Secrets and editor files
+.env
+.env.*
+!.env.example
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Generated synthetic inputs and pipeline outputs (rebuildable)
+data/*.csv
+data/model_outputs/*.csv
+sql/query_results/*.csv
+Commercial_Analytics_Report.xlsx

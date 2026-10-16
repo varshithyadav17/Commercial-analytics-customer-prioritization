@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Pipeline and tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Generate deterministic synthetic data
+        run: python data/generate_data.py
+      - name: Run analytics and SQL pipeline
+        run: python -m src.run_pipeline
+      - name: Build Excel report
+        run: python dashboard/build_excel.py
+      - name: Run tests
+        run: python -m pytest -q
+      - name: Compile Python modules
+        run: python -m compileall -q data src sql dashboard tests
+      - name: Validate workbook
+        run: python -c "from openpyxl import load_workbook; w=load_workbook('Commercial_Analytics_Report.xlsx', read_only=True); assert {'Executive Summary', 'Segment Summary', 'Contact Plan', 'Quota & Incentives', 'Territory Summary', 'Monthly Trend', 'Methodology'}.issubset(set(w.sheetnames)); print(w.sheetnames)"
